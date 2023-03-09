@@ -2,7 +2,14 @@
 
 *Going beyond native apps, learn how to use Appium to automate web browsers on mobile devices, just as if you were using Selenium for desktop browsers.*
 
-Let's learn how to use Appium to test something other than a native mobile application. Mobile devices come with their own web browsers, enabling users to benefit from the full array of websites and web applications, and indeed much of the time we spend on our devices is probably in the browser. If you have a web app that needs testing, it goes without saying that it should be tested on mobile browsers, not just desktop browsers
+Mobile Web Automation Overview |
+---- |
+Appium facilitates web browser automation on Android (Chrome) and iOS (Safari). |
+To automate a mobile browser, use the <code>browserName</code> capability instead of app. It should be equal to either <code>Safari</code> or <code>Chrome</code>. |
+With a mobile wen session, you'll have access to all web-based Selenium/WebDriver commands and capabilties (e.g., the CSS selector locator strategy). |
+You'll still gave access to all Appium's device commands and similar while automating the browser. |
+
+Let's learn how to use Appium to test something other than a native mobile application. Mobile devices come with their own web browsers, enabling users to benefit from the full array of websites and web applications, and indeed much of the time we spend on our devices is probably in the browser. If you have a web app that needs testing, it goes without saying that it should be tested on mobile browsers, not just desktop browsers.
 
 Thankfully, Appium allows for the automation of the standard browsers on both Android and iOS, in other words Chrome and Safari respectively. It provides support for Safari and Chrome through different mechanisms unique to each platform, but the end result is the same: when you automate a mobile browser with Appium, it's just as if you're automating a desktop web browser with a Selenium driver.
 
@@ -13,6 +20,14 @@ When you start a session like this, you'll have access to all the standard WebDr
 Of course, you'll also have access to many of the mobile-related features that Appium provides. You won't be able to find native elements while automating a webpage, but you will be able to do many other things like change the device orientation, launch other apps or activities, and so on.
 
 Let's move on to talk about how this web automation works specifically, with Safari first, and then Chrome.
+
+Web Automation with Mobile Safari |
+---- |
+Automation is made possible by the "remote debugger". Safari allows external apps to connect to a special port that it opens, and send commands or retrieve information about webpages. Simulators are easy to connect to; real devices require a remote debugger proxy server. |
+To make sure the remote debugger is on, "Remote Automation" must be enabled in Safari's Advanced Settings. |
+Appium translates WebDriver commands from you into Remote Debug Protocol commands for Safari's remote debugger. |
+The remote debugger doesnt give us complete control over the browser, just what we can achieve more or less through JavaScript |
+
 
 How does Appium provide the ability to automate webpages within mobile Safari?
 
@@ -113,6 +128,13 @@ What we're doing here is making sure that the URL is what we expect before we tr
 
 So this was an excellent example of tracking down a race condition and using an explicit wait to help get rid of it, increasing our test stability all around. And all along the way of learning how Safari works. This is an illustration that in general you can just take Selenium tests and then run them without change on Appium, but you might run into situations where you have an opportunity to increase your test stability for *both* web and mobile by running it on different platforms. Alright, now let's turn our attention to Chrome on Android to figure out how to get *that* working as well.
 
+Web Automation with Mobile Chrome |
+---- |
+ChromeDriver works for Android! |
+When you want Chrome automation, Appium runs ChromeDriver under the hood and secretly passes all your automation commands onto it. |
+In this mode, Appium is acting merely as a "proxy", a thin intermediary between you and ChromeDriver. |
+ChromeDriver is purpose-built to automate Chrome, so it is more powerful than building out support via the remote debugger as we did with Safari. |
+
 Appium also supports automation of the Chrome web browser on Android. How does this work, and how is it made possible?
 
 On Android we have something going for us which is pretty awesome, and it's called Chromedriver. You may recall Chromedriver from web testing. It's the piece of software released by Google which acts as a standalone webdriver server for Chrome. Luckily for us, it's designed in such a way that it works with Chrome on Android, not only Chrome on the desktop.
@@ -125,21 +147,42 @@ Because Chromedriver is actually written by the same teams that develop Chrome, 
 
 All is not roses on the Chrome side of things, however. Chromedriver is both a blessing and a curse! It's amazing that it exists, and that we can use it to get web automation for Android for free. But it is an independent piece of software with its own requirements, and that adds some complexity.
 
+ChromeDriver Download Woes |
+---- |
+Each version of the Appium UiAutomator2 driver comes bundled with one version of ChromeDriver. |
+Each version of ChromeDriver can only automate certain versions of Chrome. |
+Appium will always print in its logs the versions of ChromeDriver it knows about, and what versions of Chrome they require. |
+To fix errors, one strategy is to download (usually newer) versions of Chrome. And you may want to do this anyway. |
+
+
 The first thing to know is that each version of Appium, or more specifically the UiAutomator2 driver, comes with a certain version of Chromedriver. Typically this is whatever version was most recent when your version of the UiAutomator2 driver was released. This is great on one hand, since it means you don't have to worry about downloading Chromedriver yourself.
 
 On the other hand, Chromedriver comes with some of its own requirements when it comes to automating Chrome. Each version of Chromedriver can only automate specific versions of Chrome, usually ones that were released at the same time as that version of Chromedriver. If you try to automate a version of Chrome that isn't supported with the Chromedriver that comes with Appium, you'll get an error message that looks like the one shown below:
 
-...
+<img width="600" src="https://user-images.githubusercontent.com/70295997/223972960-905b2aca-0928-468c-af1d-e73c8a7ad476.png">
 
 As you can see, this is actually a pretty descriptive error. It tells you that there was no Chromedriver that could automate the version of Chrome which was found on your device, and gives you a link to look at for more information. And if you were to scroll further up in the Appium logs at this point, you would see even more helpful information. Any time Appium is used to automate a webpage, it will give you some information about the versions of Chromedriver which are available, and the minimum version of Chrome they require.
 
 So to fix any problems, you *could* just go and update Chrome to the version specified. But usually, this is too much of a manual intervention, and so Appium actually provides a feature for handling this problem.
+
+ChromeDriver Autodownload |
+---- |
+Appium will download a version of ChromeDriver for you specifically to match the version of Chrome it detects on your device. |
+Appium will maintain a whole set of ChromeDrivers for your devices as it downloads them on your system. |
+Because this feature involves downloading and running code from the Internet, it's technically a security risk, so we require opting into it by the Appium server admin (the person running the server). |
+To turn on potentially insecure features, use the <code>--allow-insecure</code> CLI arg when starting Appium. In this case: <code>appium --allow-insecure=chromedriver_autodownload</code>. |
 
 Essentially, Appium will happily download the version of Chromedriver for you, which is appropriate for the version of Chrome that Appium detects on the device. And in fact, if you automate lots of different devices with the same Appium server, Appium will download and keep a whole set of Chromedrivers for you, along with a mapping file that tells Appium which Chromedrivers it should use with which versions of Chrome.
 
 Appium downloads Chromedrivers from Google's official repository, but it's always possible that this URL changes or is hijacked by a malicious actor. For that reason, the Appium team acknowledges that there's a potential security risk in allowing download and execution of files from the internet, and therefore the feature isn't turned on by default. It has to be explicitly opted in to by the administrator who's in charge of starting the Appium server.
 
 The way we do this is by including a special flag when starting the Appium server, called <code>--allow-insecure</code>. This flag lets us specify any number of features we want to turn on that are not turned on by default because there's some security consideration to their use. So to turn on this specific Chromedriver autodownload feature, we need to know its feature name. These can be found in the Appium docs, but the specific feature name to use in this case is <code>chromedriver_autodownload</code>. So all we need to do to make things work for our case is simply to start the Appium server with this CLI parameter.
+
+| ChromeDriver Download Capabilities |  |
+| ---- | ---- |
+| <code>chromedriverExecutableDir</code> | Path designating the place Appium should save ChromeDrivers it downloads. |
+| <code>chromedriverChromeMappingFile</code> | Path to JSON file where Appum should store its mapping between ChromeDriver binaries and Chrome versions. |
+
 
 There are two capabilities that are related to this feature, that are worth knowing about as well. When Appium downloads Chromedrivers, by default it just puts them in the same directory where the UiAutomator2 driver is installed. This is fine, but if you update the driver, then all those Chromedrivers you've downloaded will disappear. So if you want them to persist in between driver updates, you can use the <code>chromedriverExecutableDir</code> capability and pass the path to a directory where Appium can put all its Chromedrivers. Obviously the user the Appium server runs as needs write permissions to this directory.
 
