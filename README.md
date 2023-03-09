@@ -139,14 +139,25 @@ Essentially, Appium will happily download the version of Chromedriver for you, w
 
 Appium downloads Chromedrivers from Google's official repository, but it's always possible that this URL changes or is hijacked by a malicious actor. For that reason, the Appium team acknowledges that there's a potential security risk in allowing download and execution of files from the internet, and therefore the feature isn't turned on by default. It has to be explicitly opted in to by the administrator who's in charge of starting the Appium server.
 
-...
+The way we do this is by including a special flag when starting the Appium server, called <code>--allow-insecure</code>. This flag lets us specify any number of features we want to turn on that are not turned on by default because there's some security consideration to their use. So to turn on this specific Chromedriver autodownload feature, we need to know its feature name. These can be found in the Appium docs, but the specific feature name to use in this case is <code>chromedriver_autodownload</code>. So all we need to do to make things work for our case is simply to start the Appium server with this CLI parameter.
 
+There are two capabilities that are related to this feature, that are worth knowing about as well. When Appium downloads Chromedrivers, by default it just puts them in the same directory where the UiAutomator2 driver is installed. This is fine, but if you update the driver, then all those Chromedrivers you've downloaded will disappear. So if you want them to persist in between driver updates, you can use the <code>chromedriverExecutableDir</code> capability and pass the path to a directory where Appium can put all its Chromedrivers. Obviously the user the Appium server runs as needs write permissions to this directory.
 
+Likewise, there's a capability called <code>chromedriverChromeMappingFile</code> which you can use to set the path of the JSON file Appium creates to store a mapping between Chromedriver binaries and versions of Chrome they support.
 
+Let's put all this to use with an example. I'm going to just keep all the test code from the above iOS script, but of course we need to update the capabilities to target an Android device and the Chrome browser instead of what's here now. To get those, I'll copy the <code>CAPS </code> definition from some existing Android script.
 
+        CAPS = {
+            'platformName': 'Android',
+            'platformVersion': '13.0',
+            'deviceName': 'Android Emulator',
+            'automationName': 'UiAutomator2',
+            'app': APP,
+        }
 
+The only thing left is to change the <code>app</code> capability to <code>browserName</code>, and set the value to <code>Chrome</code>, as we did before for Safari. Now we should be ready to go in terms of the script. But remember that the way the Appium server is currently running, the Chromedriver Autodownload feature won't be turned on. So I'll go over to the terminal where I have the server running, and stop it. Now, I'll restart it, but using the <code>--allow-insecure=chromedriver_autodownload</code> parameter. Now that the server is running with this feature enabled, I can go back and run the script.
 
-
+After we wait a bit for the usual startup routine, Chrome pops up instead of the native app. And, we see it loading the page and walking through the flow. No errors were produced, so that's a passing test. And this is all you need to do to work with Chrome using Appium. The only complexity has to do with Chromedriver relating to Chrome versions, but you can let Appium deal with that headache for you automatically using the Chromedriver Autodownload feature. If for some reason you can't turn that feature on, then there are lots of other options, including telling Appium to use a different Chromedriver than the one that's installed, or updating Chrome itself. You can see all those options in the Appium documentation about managing Chromedriver.
 
 
 
