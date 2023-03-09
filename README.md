@@ -24,7 +24,7 @@ Here's how Appium supports regular WebDriver commands in this situation: when yo
 
 Because all we have access to is the remote debugger protocol for Safari, there are a few things that aren't supported very well. For example, when you try to click an element, at the end of the day we turn that into a JavaScript event which gets fired on the appropriate element. This is a bit different than what happens technically when a user touches the glass of the screen. Likewise, we can't use the remote debugger protocol's JavaScript functions to automate alerts, so we've had to think of some clever ways around that limitation. All this to say, Appium's Safari support isn't quite the same thing as what you would get with the official SafariDriver from Apple on Desktop, because that driver is able to hook into the Safari browser itself at a deeper level.
 
-### Practical Example
+### [Practical Example](https://github.com/lana-20/web-app-testing/blob/main/web_ios.py)
 
 Let's take s Safari session for a spin. We're going to be running what is essentially a web test. Ideally, we can reuse any web automation script by merely modifying the capabilities and session start code to run on Appium instead of Selenium. For example, we may have already run some web tests on desktop Firefox with <code>driver = webdriver.Firefox()</code>. 
 
@@ -144,6 +144,8 @@ The way we do this is by including a special flag when starting the Appium serve
 There are two capabilities that are related to this feature, that are worth knowing about as well. When Appium downloads Chromedrivers, by default it just puts them in the same directory where the UiAutomator2 driver is installed. This is fine, but if you update the driver, then all those Chromedrivers you've downloaded will disappear. So if you want them to persist in between driver updates, you can use the <code>chromedriverExecutableDir</code> capability and pass the path to a directory where Appium can put all its Chromedrivers. Obviously the user the Appium server runs as needs write permissions to this directory.
 
 Likewise, there's a capability called <code>chromedriverChromeMappingFile</code> which you can use to set the path of the JSON file Appium creates to store a mapping between Chromedriver binaries and versions of Chrome they support.
+
+### [Practical Example](https://github.com/lana-20/web-app-testing/blob/main/find_android.py)
 
 Let's put all this to use with an example. I'm going to just keep all the test code from the above iOS script, but of course we need to update the capabilities to target an Android device and the Chrome browser instead of what's here now. To get those, I'll copy the <code>CAPS </code> definition from some existing Android script.
 
