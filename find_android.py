@@ -7,9 +7,10 @@ from selenium.webdriver.support import expected_conditions as EC
 CUR_DIR = path.dirname(path.abspath(__file__))
 APP = path.join(CUR_DIR, 'TheApp.apk')
 APPIUM = 'http://localhost:4723'
+
 CAPS = {
     'platformName': 'Android',
-    'platformVersion': '10.0',
+    'platformVersion': '13.0',
     'deviceName': 'Android Emulator',
     'automationName': 'UiAutomator2',
     'app': APP,
